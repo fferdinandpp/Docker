@@ -3,14 +3,26 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 )
 
 func helloWorld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Ferdinand Pratama Putra")
+	message := os.Getenv("HELLO_MESSAGE")
+	if message == "" {
+		message = "Hello World! (no set env)"
+	}
+	fmt.Fprintf(w, message)
 }
 
 func main() {
 	http.HandleFunc("/", helloWorld)
-	fmt.Println("Server running at http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	fmt.Printf("Server running at http://localhost:%s\n", port)
+	err := http.ListenAndServe(":" + port, nil)
+	if err != nil {
+		fmt.Printf("Failed to start server: %v\n", err)
+	}
 }
